@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.github.hypfvieh.shell.ShellFormatter;
 import com.github.hypfvieh.util.StringUtil;
 
-public abstract class AbstractCommand implements IRemoteCommand {
+public abstract class AbstractCommand implements ICommand {
 
     protected static final String HDR_IDX        = "Idx";
 

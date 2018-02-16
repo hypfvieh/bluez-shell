@@ -21,7 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import com.github.hypfvieh.commands.AbstractCommand;
 import com.github.hypfvieh.commands.ExitCommand;
-import com.github.hypfvieh.commands.IRemoteCommand;
+import com.github.hypfvieh.commands.ICommand;
+import com.github.hypfvieh.commands.init.AbstractInitializationCommand;
 import com.github.hypfvieh.formatter.TableColumnFormatter;
 import com.github.hypfvieh.shell.jline3.AnsiStringSplit;
 import com.github.hypfvieh.shell.jline3.RemoteCommandCompleter;
@@ -38,7 +39,7 @@ public class CommandRegistry {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private final Map<String, IRemoteCommand> supportedCommands = new HashMap<>();
+    private final Map<String, ICommand> supportedCommands = new HashMap<>();
 
     /** Create the {@link AggregateCompleter} with an empty list to allow adding entries later on. */
     private final AggregateCompleter jlineCompleter = new AggregateCompleter(new ArrayList<>());
@@ -57,7 +58,7 @@ public class CommandRegistry {
      *
      * @return
      */
-    public static CommandRegistry getInstance() {
+    static CommandRegistry getInstance() {
         return INSTANCE;
     }
 
@@ -66,11 +67,16 @@ public class CommandRegistry {
      *
      * @param _command
      */
-    public void registerCommand(IRemoteCommand _command) {
+    public void registerCommand(ICommand _command) {
         if (_command == null) {
             throw new IllegalArgumentException("Null is no valid command");
         }
 
+        if (_command instanceof AbstractInitializationCommand) {
+            logger.debug("Initialization command cannot be registered: {}", _command.getClass());
+            return;
+        }
+        
         if (StringUtils.isBlank(_command.getCommandName())) {
             throw new IllegalArgumentException("Command '" + _command.getCommandName() + "' is no valid command name!");
         }
@@ -119,7 +125,7 @@ public class CommandRegistry {
      *
      * @param _commandExecutor
      */
-    public void unregisterRemoteCommand(IRemoteCommand _commandExecutor) {
+    public void unregisterRemoteCommand(ICommand _commandExecutor) {
         if (_commandExecutor != null && !StringUtils.isBlank(_commandExecutor.getCommandName())) {
             unregisterRemoteCommand(_commandExecutor.getCommandName());
         } else {
@@ -146,7 +152,7 @@ public class CommandRegistry {
      *
      * @return
      */
-    public Map<String, IRemoteCommand> getRegisteredCommands() {
+    public Map<String, ICommand> getRegisteredCommands() {
         return Collections.unmodifiableMap(supportedCommands);
     }
 
@@ -178,7 +184,7 @@ public class CommandRegistry {
         private final int HDR_ALIASES_LEN = 15;
         private final int HDR_ARGUMENTS_LEN = 29;
 
-        private final int HDR_DESCRIPTION_LEN = IRemoteCommand.DEFAULT_SHELL_WIDTH - HDR_COMMAND_LEN - HDR_ALIASES_LEN
+        private final int HDR_DESCRIPTION_LEN = ICommand.DEFAULT_SHELL_WIDTH - HDR_COMMAND_LEN - HDR_ALIASES_LEN
                 - HDR_ARGUMENTS_LEN - (3 * HDR_SPACER.length());
 
         @Override
@@ -205,7 +211,7 @@ public class CommandRegistry {
             text.add(tableColumnFormatter.formatLine(HDR_COMMAND, HDR_ALIASES, HDR_ARGUMENTS, HDR_DESCRIPTION));
             text.add(tableColumnFormatter.fillLine('-'));
 
-            for (Entry<String, IRemoteCommand> entry : supportedCommands.entrySet()) {
+            for (Entry<String, ICommand> entry : supportedCommands.entrySet()) {
 
                 String[] aliases = entry.getValue().getCommandAliases();
 
@@ -278,7 +284,7 @@ public class CommandRegistry {
 
         @Override
         public String getCmdGroup() {
-            return IRemoteCommand.CMDGRP_GENERAL;
+            return ICommand.CMDGRP_GENERAL;
         }
 
     }

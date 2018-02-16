@@ -23,17 +23,22 @@ import org.jline.terminal.TerminalBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.hypfvieh.commands.IRemoteCommand;
+import com.github.hypfvieh.commands.ICommand;
+import com.github.hypfvieh.commands.init.AbstractDeInitializationCommand;
+import com.github.hypfvieh.commands.init.AbstractInitializationCommand;
 
 public class EmbeddedShell implements Closeable {
-    private final Logger             logger                   = LoggerFactory.getLogger(this.getClass());
+    private final Logger       logger                   = LoggerFactory.getLogger(this.getClass());
     private LineReader         reader;
     private Terminal           terminal;
 
     private InputStream        inStream;
     private OutputStream       outStream;
     private OutputStream       errStream;
-
+    
+    private CommandRegistry    commandRegistry = CommandRegistry.getInstance();
+    private AbstractDeInitializationCommand deInitCommand;
+    
     public EmbeddedShell(InputStream _inStream, OutputStream _outStream, OutputStream _errStream) {
         if (_inStream == null) {
             throw new IllegalArgumentException("Input-Stream cannot be null");
@@ -53,17 +58,11 @@ public class EmbeddedShell implements Closeable {
 
     public void start(String prompt) throws IOException {
 
+        if (reader == null) {
+            throw new IOException("LineReader not initialized. Did you call initialize(_initCommand, _deInitCommand) first?");
+        }
+        
         try {
-            createAndConfigureTerminal();
-
-            reader = LineReaderBuilder.builder()
-                    .terminal(terminal)
-                    .completer(CommandRegistry.getInstance().getCompleter())
-                    .build();
-
-            reader.unsetOpt(Option.INSERT_TAB); // disable tab insertion when no letter was given (allows using tab to list all commands)
-            reader.setOpt(Option.GROUP); // enable command grouping in menu
-
             String readline;
             while ((readline = reader.readLine(prompt)) != null) {
                 handleUserInput(readline);
@@ -79,6 +78,47 @@ public class EmbeddedShell implements Closeable {
         }
     }
 
+
+    /**
+     * Initialize the terminal and optionally run the given init command.
+     * 
+     * @param _initCommand
+     * @throws IOException
+     */
+    public void initialize(AbstractInitializationCommand _initCommand, AbstractDeInitializationCommand _deinitCommand) throws IOException {
+        createAndConfigureTerminal();
+
+        reader = LineReaderBuilder.builder()
+                .terminal(terminal)
+                .completer(CommandRegistry.getInstance().getCompleter())
+                .build();
+
+        reader.unsetOpt(Option.INSERT_TAB); // disable tab insertion when no letter was given (allows using tab to list all commands)
+        reader.setOpt(Option.GROUP); // enable command grouping in menu
+
+        if (_deinitCommand != null) {
+            deInitCommand = _deinitCommand;
+        }
+
+        if (_initCommand != null) {
+            printToConsole(_initCommand.execute(null, terminal));
+        }
+    }
+
+    /**
+     * Prints and flushes the stream to show output on console.
+     * @param _lines
+     */
+    private void printToConsole(String... _lines) {
+        if (_lines != null) {
+            for (String line : _lines) {
+                terminal.writer().println(line);
+            }
+            terminal.flush();
+        }
+    }
+
+    
     /**
      * Creates a {@link Terminal} instance and configures the environment and key mapping settings.
      *
@@ -93,106 +133,7 @@ public class EmbeddedShell implements Closeable {
                 .nativeSignals(true)
                 .build();
 
-//        String envCols = getEnvironment().getEnv().get(Environment.ENV_COLUMNS);
-//        String envRows = getEnvironment().getEnv().get(Environment.ENV_LINES);
-//        if (envCols != null && envRows != null) {
-//            terminal.setSize(new Size(Integer.parseInt(envCols),
-//                Integer.parseInt(envRows)));
-//        }
-
         Attributes attr = terminal.getAttributes();
-//        for (Map.Entry<PtyMode, Integer> e : getEnvironment().getPtyModes().entrySet()) {
-//            switch (e.getKey()) {
-//                case VINTR:
-//                    attr.setControlChar(ControlChar.VINTR, e.getValue());
-//                    break;
-//                case VQUIT:
-//                    attr.setControlChar(ControlChar.VQUIT, e.getValue());
-//                    break;
-//                case VERASE:
-//                    attr.setControlChar(ControlChar.VERASE, e.getValue());
-//                    break;
-//                case VKILL:
-//                    attr.setControlChar(ControlChar.VKILL, e.getValue());
-//                    break;
-//                case VEOF:
-//                    attr.setControlChar(ControlChar.VEOF, e.getValue());
-//                    break;
-//                case VEOL:
-//                    attr.setControlChar(ControlChar.VEOL, e.getValue());
-//                    break;
-//                case VEOL2:
-//                    attr.setControlChar(ControlChar.VEOL2, e.getValue());
-//                    break;
-//                case VSTART:
-//                    attr.setControlChar(ControlChar.VSTART, e.getValue());
-//                    break;
-//                case VSTOP:
-//                    attr.setControlChar(ControlChar.VSTOP, e.getValue());
-//                    break;
-//                case VSUSP:
-//                    attr.setControlChar(ControlChar.VSUSP, e.getValue());
-//                    break;
-//                case VDSUSP:
-//                    attr.setControlChar(ControlChar.VDSUSP, e.getValue());
-//                    break;
-//                case VREPRINT:
-//                    attr.setControlChar(ControlChar.VREPRINT, e.getValue());
-//                    break;
-//                case VWERASE:
-//                    attr.setControlChar(ControlChar.VWERASE, e.getValue());
-//                    break;
-//                case VLNEXT:
-//                    attr.setControlChar(ControlChar.VLNEXT, e.getValue());
-//                    break;
-//                /*
-//                case VFLUSH:
-//                    attr.setControlChar(ControlChar.VMIN, e.getValue());
-//                    break;
-//                case VSWTCH:
-//                    attr.setControlChar(ControlChar.VTIME, e.getValue());
-//                    break;
-//                */
-//                case VSTATUS:
-//                    attr.setControlChar(ControlChar.VSTATUS, e.getValue());
-//                    break;
-//                case VDISCARD:
-//                    attr.setControlChar(ControlChar.VDISCARD, e.getValue());
-//                    break;
-//                case ECHO:
-//                    attr.setLocalFlag(LocalFlag.ECHO, e.getValue() != 0);
-//                    break;
-//                case ICANON:
-//                    attr.setLocalFlag(LocalFlag.ICANON, e.getValue() != 0);
-//                    break;
-//                case ISIG:
-//                    attr.setLocalFlag(LocalFlag.ISIG, e.getValue() != 0);
-//                    break;
-//                case ICRNL:
-//                    attr.setInputFlag(InputFlag.ICRNL, e.getValue() != 0);
-//                    break;
-//                case INLCR:
-//                    attr.setInputFlag(InputFlag.INLCR, e.getValue() != 0);
-//                    break;
-//                case IGNCR:
-//                    attr.setInputFlag(InputFlag.IGNCR, e.getValue() != 0);
-//                    break;
-//                case OCRNL:
-//                    attr.setOutputFlag(OutputFlag.OCRNL, e.getValue() != 0);
-//                    break;
-//                case ONLCR:
-//                    attr.setOutputFlag(OutputFlag.ONLCR, e.getValue() != 0);
-//                    break;
-//                case ONLRET:
-//                    attr.setOutputFlag(OutputFlag.ONLRET, e.getValue() != 0);
-//                    break;
-//                case OPOST:
-//                    attr.setOutputFlag(OutputFlag.OPOST, e.getValue() != 0);
-//                    break;
-//                default:
-//                    break;
-//            }
-//        }
 
         // enable output processing (required for all output flags)
         attr.setOutputFlag(OutputFlag.OPOST, true);
@@ -225,20 +166,14 @@ public class EmbeddedShell implements Closeable {
             }
 
             String[] result = null;
-            Map<String, IRemoteCommand> registeredCommands = CommandRegistry.getInstance().getRegisteredCommands();
+            Map<String, ICommand> registeredCommands = CommandRegistry.getInstance().getRegisteredCommands();
             if (registeredCommands.containsKey(split[0])) {
                 result = registeredCommands.get(split[0]).execute(argList, terminal);
             } else {
-                terminal.writer().println("Unknown command: " + split[0]);
-                terminal.flush();
+                printToConsole("Unknown command: " + split[0]);
             }
 
-            if (result != null) {
-                for (String line : result) {
-                    terminal.writer().println(line);
-                }
-                terminal.flush();
-            }
+            printToConsole(result);
 
         }
     }
@@ -257,8 +192,17 @@ public class EmbeddedShell implements Closeable {
 
     @Override
     public void close() throws IOException {
+        if (deInitCommand != null) {
+            printToConsole(deInitCommand.execute(null, terminal));
+        }
         terminal.close();
     }
 
+    public void registerCommand(ICommand _command) {
+        if (terminal == null) {
+            throw new RuntimeException("Tried to register command " + _command.getClass() + " before shell initialization!");
+        }
+        commandRegistry.registerCommand(_command);
+    }
 
 }

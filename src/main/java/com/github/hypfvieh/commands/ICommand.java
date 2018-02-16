@@ -7,7 +7,7 @@ import java.util.List;
 import org.jline.reader.Completer;
 import org.jline.terminal.Terminal;
 
-public interface IRemoteCommand {
+public interface ICommand {
 
     public static final int DEFAULT_SHELL_WIDTH = 105; // minimum characters per line if not overridden by ENV_TERM
 
@@ -85,5 +85,9 @@ public interface IRemoteCommand {
 
     default String[] getHelpText(Terminal _terminal) {
         return new String[] {"No additional help available."};
+    }
+    
+    default boolean isRegisterable() {
+        return true;
     }
 }

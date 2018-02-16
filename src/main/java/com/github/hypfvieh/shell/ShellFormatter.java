@@ -157,7 +157,7 @@ public final class ShellFormatter {
         if (_str == null) {
             return null;
         }
-
+        
         return new AttributedString(_str, _style).toAnsi(terminal);
     }
 
