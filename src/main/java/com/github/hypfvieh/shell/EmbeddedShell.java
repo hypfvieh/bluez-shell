@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jline.reader.EndOfFileException;
@@ -18,12 +19,14 @@ import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Attributes;
 import org.jline.terminal.Attributes.OutputFlag;
+import org.jline.utils.AttributedStyle;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.hypfvieh.commands.ICommand;
+import com.github.hypfvieh.commands.base.CommandArg;
+import com.github.hypfvieh.commands.base.ICommand;
 import com.github.hypfvieh.commands.init.AbstractDeInitializationCommand;
 import com.github.hypfvieh.commands.init.AbstractInitializationCommand;
 
@@ -168,7 +171,17 @@ public class EmbeddedShell implements Closeable {
             String[] result = null;
             Map<String, ICommand> registeredCommands = CommandRegistry.getInstance().getRegisteredCommands();
             if (registeredCommands.containsKey(split[0])) {
-                result = registeredCommands.get(split[0]).execute(argList, terminal);
+                ICommand iCommand = registeredCommands.get(split[0]);
+                List<CommandArg> requiredArgs = iCommand.getCommandArgs().stream().filter(a -> !a.isOptional()).collect(Collectors.toList());
+                if (requiredArgs.size() > split.length -1) {
+                    ShellFormatter sf = new ShellFormatter(terminal);
+                    
+                    
+                    printToConsole(sf.printInColor("Arguments missing, expecting " + requiredArgs.size() + " but got " + (split.length-1), AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)),
+                            sf.printInColor("These arguments are required: " + StringUtils.join(", ", requiredArgs), AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)));
+                } else {
+                    result = registeredCommands.get(split[0]).execute(argList, terminal);
+                }
             } else {
                 printToConsole("Unknown command: " + split[0]);
             }

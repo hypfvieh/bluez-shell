@@ -1,4 +1,4 @@
-package com.github.hypfvieh.commands;
+package com.github.hypfvieh.commands.base;
 
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ public interface ICommand {
     public static final String CMDGRP_GENERAL = "General";
 
     public static final String NL = System.getProperty("line.separator");
-
+    
     /**
      * Command which will be executed.
      * To terminate the remote shell session throw {@link InterruptedIOException}.
@@ -59,10 +59,11 @@ public interface ICommand {
      *
      * @return defaults to no arguments
      */
-    default String getCommandArgs() {
-        return "";
+    default List<CommandArg> getCommandArgs() {
+        return CommandArg.NO_ARGS;
     }
 
+    
     /**
      * Completer for arguments.
      * Each entry in the returned array should be a completer for one argument of the command.

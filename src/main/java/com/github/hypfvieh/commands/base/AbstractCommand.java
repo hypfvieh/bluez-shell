@@ -1,4 +1,4 @@
-package com.github.hypfvieh.commands;
+package com.github.hypfvieh.commands.base;
 
 import java.util.List;
 

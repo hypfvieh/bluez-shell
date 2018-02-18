@@ -19,9 +19,10 @@ import org.jline.utils.AttributedStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.hypfvieh.commands.AbstractCommand;
 import com.github.hypfvieh.commands.ExitCommand;
-import com.github.hypfvieh.commands.ICommand;
+import com.github.hypfvieh.commands.base.AbstractCommand;
+import com.github.hypfvieh.commands.base.CommandArg;
+import com.github.hypfvieh.commands.base.ICommand;
 import com.github.hypfvieh.commands.init.AbstractInitializationCommand;
 import com.github.hypfvieh.formatter.TableColumnFormatter;
 import com.github.hypfvieh.shell.jline3.AnsiStringSplit;
@@ -248,7 +249,7 @@ public class CommandRegistry {
 
                 String paddedCommand = StringUtils.rightPad(commandName.toString(), HDR_COMMAND_LEN);
                 String line = tableColumnFormatter.formatLine(paddedCommand, cAliases,
-                        entry.getValue().getCommandArgs(), entry.getValue().getDescription());
+                        StringUtils.join(", ", entry.getValue().getCommandArgs()), entry.getValue().getDescription());
 
                 line = line.replace(paddedCommand, formattedCommandName);
 
@@ -278,8 +279,8 @@ public class CommandRegistry {
         }
 
         @Override
-        public String getCommandArgs() {
-            return "[command]";
+        public List<CommandArg> getCommandArgs() {
+            return Arrays.asList(new CommandArg("command", true));
         }
 
         @Override

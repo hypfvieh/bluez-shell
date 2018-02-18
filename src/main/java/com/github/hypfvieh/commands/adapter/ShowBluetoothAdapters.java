@@ -1,4 +1,4 @@
-package com.github.hypfvieh.commands;
+package com.github.hypfvieh.commands.adapter;
 
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
@@ -10,6 +10,7 @@ import static org.jline.utils.AttributedStyle.*;
 
 import com.github.hypfvieh.bluetooth.DeviceManager;
 import com.github.hypfvieh.bluetooth.wrapper.BluetoothAdapter;
+import com.github.hypfvieh.commands.base.AbstractCommand;
 import com.github.hypfvieh.helper.UuidResolver;
 import com.github.hypfvieh.shell.ShellFormatter;
 

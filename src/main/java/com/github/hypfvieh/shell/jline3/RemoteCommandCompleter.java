@@ -12,7 +12,7 @@ import org.jline.reader.LineReader;
 import org.jline.reader.ParsedLine;
 import org.jline.utils.AttributedString;
 
-import com.github.hypfvieh.commands.ICommand;
+import com.github.hypfvieh.commands.base.ICommand;
 
 public class RemoteCommandCompleter implements Completer {
     protected final Collection<Candidate> candidates = new ArrayList<>();

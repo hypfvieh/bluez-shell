@@ -1,4 +1,4 @@
-package com.github.hypfvieh.commands;
+package com.github.hypfvieh.commands.adapter;
 
 import java.io.InterruptedIOException;
 import java.util.Arrays;
@@ -12,6 +12,8 @@ import org.jline.terminal.Terminal;
 
 import com.github.hypfvieh.bluetooth.DeviceManager;
 import com.github.hypfvieh.bluetooth.wrapper.BluetoothAdapter;
+import com.github.hypfvieh.commands.base.AbstractCommand;
+import com.github.hypfvieh.commands.base.CommandArg;
 import com.github.hypfvieh.shell.ShellFormatter;
 import com.github.hypfvieh.shell.jline3.ArgumentWithDescriptionCompleter;
 import com.github.hypfvieh.shell.jline3.ArgumentWithDescriptionCompleter.ArgWithDescription;
@@ -57,8 +59,8 @@ public class SelectAdapter extends AbstractCommand {
     }
 
     @Override
-    public String getCommandArgs() {        
-        return "MacAddressOrDevicename";
+    public List<CommandArg> getCommandArgs() {        
+        return Arrays.asList(new CommandArg("DeviceNameOrMac", false));
     }
 
     @Override

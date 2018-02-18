@@ -5,8 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.hypfvieh.bluetooth.DeviceManager;
-import com.github.hypfvieh.commands.SelectAdapter;
-import com.github.hypfvieh.commands.ShowBluetoothAdapters;
+import com.github.hypfvieh.commands.adapter.SelectAdapter;
+import com.github.hypfvieh.commands.adapter.ShowBluetoothAdapters;
+import com.github.hypfvieh.commands.device.ScanDevices;
+import com.github.hypfvieh.commands.device.ShowDevices;
 import com.github.hypfvieh.commands.init.ShellDeInitializeCommand;
 import com.github.hypfvieh.commands.init.ShellInitializeCommand;
 import com.github.hypfvieh.shell.EmbeddedShell;
@@ -33,8 +35,14 @@ public class BluezShell {
             // initialize the shell
             shell.initialize(new ShellInitializeCommand(), new ShellDeInitializeCommand());
             // register our commands
+            
+            // adapter commands
             shell.registerCommand(new ShowBluetoothAdapters());
             shell.registerCommand(new SelectAdapter());
+            
+            // device commands
+            shell.registerCommand(new ScanDevices());
+            shell.registerCommand(new ShowDevices());
             
             // start shell
             shell.start("bluezShell > ");

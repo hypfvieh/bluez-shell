@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.jline.terminal.Terminal;
 
-import com.github.hypfvieh.commands.AbstractCommand;
+import com.github.hypfvieh.commands.base.AbstractCommand;
 
 /**
  * Base class for shell initialization commands.
