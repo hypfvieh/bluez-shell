@@ -172,13 +172,11 @@ public class EmbeddedShell implements Closeable {
             Map<String, ICommand> registeredCommands = CommandRegistry.getInstance().getRegisteredCommands();
             if (registeredCommands.containsKey(split[0])) {
                 ICommand iCommand = registeredCommands.get(split[0]);
-                List<CommandArg> requiredArgs = iCommand.getCommandArgs().stream().filter(a -> !a.isOptional()).collect(Collectors.toList());
+                List<CommandArg> requiredArgs = iCommand.getCommandArgs().stream().filter(a -> !a.isRequired()).collect(Collectors.toList());
                 if (requiredArgs.size() > split.length -1) {
                     ShellFormatter sf = new ShellFormatter(terminal);
-                    
-                    
                     printToConsole(sf.printInColor("Arguments missing, expecting " + requiredArgs.size() + " but got " + (split.length-1), AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)),
-                            sf.printInColor("These arguments are required: " + StringUtils.join(", ", requiredArgs), AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)));
+                            sf.printInColor("These arguments are required: " + StringUtils.join(requiredArgs, ", "), AttributedStyle.DEFAULT.foreground(AttributedStyle.RED)));
                 } else {
                     result = registeredCommands.get(split[0]).execute(argList, terminal);
                 }

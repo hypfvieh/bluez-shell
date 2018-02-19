@@ -27,7 +27,7 @@ public class ArgumentWithDescriptionCompleter implements Completer {
             candidates.add(new Candidate(AttributedString.stripAnsi(arg.getArgument()), arg.getArgument(), null, arg.getHelp(), null, null, true));
         }
     }
-
+    
     public void complete(LineReader _reader, final ParsedLine _commandLine, final List<Candidate> _candidates) {
         assert _commandLine != null;
         assert _candidates != null;

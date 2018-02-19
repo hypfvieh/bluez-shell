@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.bluez.exceptions.BluezDoesNotExistsException;
-import org.jline.reader.Completer;
 import org.jline.terminal.Terminal;
 
 import com.github.hypfvieh.bluetooth.DeviceManager;
@@ -15,7 +14,6 @@ import com.github.hypfvieh.bluetooth.wrapper.BluetoothAdapter;
 import com.github.hypfvieh.commands.base.AbstractCommand;
 import com.github.hypfvieh.commands.base.CommandArg;
 import com.github.hypfvieh.shell.ShellFormatter;
-import com.github.hypfvieh.shell.jline3.ArgumentWithDescriptionCompleter;
 import com.github.hypfvieh.shell.jline3.ArgumentWithDescriptionCompleter.ArgWithDescription;
 
 public class SelectAdapter extends AbstractCommand {
@@ -47,20 +45,17 @@ public class SelectAdapter extends AbstractCommand {
     }
 
     @Override
-    public List<Completer> getArgCompleters() {
-
-        List<BluetoothAdapter> adapters = DeviceManager.getInstance().getAdapters();
+    public List<CommandArg> getCommandArgs() {
+        CommandArg commandArg = new CommandArg("DeviceNameOrMac", false, false, () -> {
+            List<BluetoothAdapter> adapters = DeviceManager.getInstance().getAdapters();
+            
+            List<ArgWithDescription> args = adapters.stream().map(a -> {
+                return new ArgWithDescription(a.getDeviceName(), a.getAddress());
+            }).collect(Collectors.toList());
+            return args;
+        });
         
-        List<ArgWithDescription> args = adapters.stream().map(a -> {
-            return new ArgWithDescription(a.getDeviceName(), a.getAddress());
-        }).collect(Collectors.toList());
-
-        return Arrays.asList(new ArgumentWithDescriptionCompleter(args));
-    }
-
-    @Override
-    public List<CommandArg> getCommandArgs() {        
-        return Arrays.asList(new CommandArg("DeviceNameOrMac", false));
+        return Arrays.asList(commandArg);
     }
 
     @Override

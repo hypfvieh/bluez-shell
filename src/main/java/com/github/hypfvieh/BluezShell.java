@@ -1,6 +1,7 @@
 package com.github.hypfvieh;
 
 import org.jline.reader.EndOfFileException;
+import org.jline.reader.UserInterruptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,8 +48,10 @@ public class BluezShell {
             // start shell
             shell.start("bluezShell > ");
         } catch (Exception _ex) {
-            if (! (_ex instanceof EndOfFileException)) { // EndOfFileException will occur when using CTRL+D to exit shell
-                System.err.println("Error: " + _ex.getMessage());
+            // EndOfFileException will occur when using CTRL+D to exit shell
+            // UserInterruptException will occur when using CTRL+C
+            if (! (_ex instanceof EndOfFileException) && !(_ex instanceof UserInterruptException)) { 
+                System.err.println("Error: (" + _ex.getClass().getSimpleName() + "): " + _ex.getMessage());
             }            
         } finally {
             DeviceManager.getInstance().closeConnection();

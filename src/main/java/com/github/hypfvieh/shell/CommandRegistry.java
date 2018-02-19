@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.AggregateCompleter;
 import org.jline.reader.impl.completer.ArgumentCompleter;
+import org.jline.reader.impl.completer.NullCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.utils.AttributedString;
 import org.jline.utils.AttributedStringBuilder;
@@ -26,6 +27,7 @@ import com.github.hypfvieh.commands.base.ICommand;
 import com.github.hypfvieh.commands.init.AbstractInitializationCommand;
 import com.github.hypfvieh.formatter.TableColumnFormatter;
 import com.github.hypfvieh.shell.jline3.AnsiStringSplit;
+import com.github.hypfvieh.shell.jline3.ArgumentWithDescriptionCompleter;
 import com.github.hypfvieh.shell.jline3.RemoteCommandCompleter;
 
 /**
@@ -113,8 +115,12 @@ public class CommandRegistry {
 
         // add all completers specified by the command for this command (each completer is responsible for one argument
         // of the command)
-        if (_command.getArgCompleters() != null && !_command.getArgCompleters().isEmpty()) {
-            argCompleter.getCompleters().addAll(_command.getArgCompleters());
+        
+        if (_command.getCommandArgs() != null && !_command.getCommandArgs().isEmpty()) {
+            for (CommandArg arg : _command.getCommandArgs()) {
+                argCompleter.getCompleters().add(new ArgumentWithDescriptionCompleter(arg.getArguments()));
+            }
+            argCompleter.getCompleters().add(new NullCompleter());
         }
 
         // put the new argument completer in the AggregateCompleter

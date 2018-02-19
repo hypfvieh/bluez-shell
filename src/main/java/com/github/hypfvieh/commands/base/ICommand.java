@@ -1,10 +1,8 @@
 package com.github.hypfvieh.commands.base;
 
 import java.io.InterruptedIOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.jline.reader.Completer;
 import org.jline.terminal.Terminal;
 
 public interface ICommand {
@@ -55,24 +53,12 @@ public interface ICommand {
     }
 
     /**
-     * Expected arguments as String (used for display in help).
+     * List of arguments and the possible values, used to create proper completer.
      *
      * @return defaults to no arguments
      */
     default List<CommandArg> getCommandArgs() {
         return CommandArg.NO_ARGS;
-    }
-
-    
-    /**
-     * Completer for arguments.
-     * Each entry in the returned array should be a completer for one argument of the command.
-     * You have to use the correct order to match your commands argument order, as the completers are used in array sort order!
-     *
-     * @return defaults to no arguments completion
-     */
-    default List<Completer> getArgCompleters() {
-        return new ArrayList<>();
     }
 
     /**
