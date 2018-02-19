@@ -3,9 +3,10 @@ package com.github.hypfvieh.commands.base;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
-import com.github.hypfvieh.shell.jline3.ArgumentWithDescriptionCompleter.ArgWithDescription;
+import com.github.hypfvieh.shell.jline3.ArgWithDescription;
 
 /**
  * Specify arguments for the command line.
@@ -29,24 +30,37 @@ public class CommandArg {
      * @param _generator supplier method to generate list of possible argument values
      */
     public CommandArg(String _argName, boolean _required, boolean _generateOnce, Supplier<List<ArgWithDescription>> _generator) {
+        Objects.requireNonNull(_argName);
         argName = _argName;
         required = _required;
-        argumentGenerator = _generator;
         generateOnce = _generateOnce;
+        argumentGenerator = _generator;        
     }
     
-    public CommandArg(String _argName, boolean _optional) {
-        this(_argName, _optional, true, null);
+    public CommandArg(String _argName, boolean _required) {
+        this(_argName, _required, true, null);
     }
     
+    /**
+     * Name of this argument
+     * @return string
+     */
     public String getArgName() {
         return argName;
     }
 
+    /**
+     * Is this argument required.
+     * @return true if required, false otherwise
+     */
     public boolean isRequired() {
         return required;
     }
     
+    /**
+     * Generate argument list once.
+     * @return true if argument list is only created once, false otherwise
+     */
     public boolean isGenerateOnce() {
         return generateOnce;
     }

@@ -70,11 +70,14 @@ public interface ICommand {
         return CMDGRP_GENERAL;
     }
 
+    /**
+     * Extended help text displayed when using "help commandName".
+     * 
+     * @param _terminal
+     * @return defaults to 'No additional help available.'
+     */
     default String[] getHelpText(Terminal _terminal) {
         return new String[] {"No additional help available."};
     }
-    
-    default boolean isRegisterable() {
-        return true;
-    }
+   
 }

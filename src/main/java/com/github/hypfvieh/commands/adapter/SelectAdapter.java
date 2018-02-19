@@ -14,7 +14,7 @@ import com.github.hypfvieh.bluetooth.wrapper.BluetoothAdapter;
 import com.github.hypfvieh.commands.base.AbstractCommand;
 import com.github.hypfvieh.commands.base.CommandArg;
 import com.github.hypfvieh.shell.ShellFormatter;
-import com.github.hypfvieh.shell.jline3.ArgumentWithDescriptionCompleter.ArgWithDescription;
+import com.github.hypfvieh.shell.jline3.ArgWithDescription;
 
 public class SelectAdapter extends AbstractCommand {
 
@@ -46,7 +46,7 @@ public class SelectAdapter extends AbstractCommand {
 
     @Override
     public List<CommandArg> getCommandArgs() {
-        CommandArg commandArg = new CommandArg("DeviceNameOrMac", false, false, () -> {
+        CommandArg commandArg = new CommandArg("DeviceNameOrMac", true, false, () -> {
             List<BluetoothAdapter> adapters = DeviceManager.getInstance().getAdapters();
             
             List<ArgWithDescription> args = adapters.stream().map(a -> {

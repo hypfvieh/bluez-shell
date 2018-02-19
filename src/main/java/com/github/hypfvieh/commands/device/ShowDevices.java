@@ -24,6 +24,7 @@ import com.github.hypfvieh.commands.base.CommandArg;
 import com.github.hypfvieh.commands.base.ICommand;
 import com.github.hypfvieh.helper.UuidResolver;
 import com.github.hypfvieh.shell.ShellFormatter;
+import com.github.hypfvieh.shell.jline3.ArgWithDescription;
 
 public class ShowDevices extends AbstractCommand {
 
@@ -146,7 +147,13 @@ public class ShowDevices extends AbstractCommand {
 
     @Override
     public List<CommandArg> getCommandArgs() {
-        return Arrays.asList(new CommandArg("MacOrAliasName", true));
+        CommandArg commandArg = new CommandArg("MacOrAliasName", false, false, () -> {
+            return DeviceManager.getInstance().getDevices().stream()
+                    .map(d -> new ArgWithDescription(d.getName(), d.getAddress()))
+                    .collect(Collectors.toList());
+        });
+        
+        return Arrays.asList(commandArg);
     }
 
     @Override
